@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <context:component-scan base-package="com.staryea" />
+    <bean id="cmsApplicationListener" class="com.staryea.listenfilealter.ContextFileListener"/>
+    <bean id="fileListener" class="com.staryea.listenfilealter.FileListener" />
+    <bean id="fileMonitor" class="com.staryea.listenfilealter.FileMonitor">
+        <property name="alterationListener" ref="fileListener"/>
+        <property name="filePath" value="F:/myTestCode/test_mongo/target/classes/aaa.conf"/>
+    </bean>
+    <import resource="classpath*:spring-mongo.xml" />
+</beans>
