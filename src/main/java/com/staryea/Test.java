@@ -3,6 +3,7 @@ package com.staryea;
 import com.staryea.entity.Friut;
 import com.staryea.entity.Name;
 import com.staryea.entity.People;
+import com.staryea.onlymongo.bigfile2mongo.MultiThreadReadFile;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,7 @@ public class Test {
             System.out.println(Map);
         }
     }
+
 
     /**
      * 查询
@@ -202,4 +204,16 @@ public class Test {
         System.out.println(model);
     }
 
+    public static void main(String[] args) {
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        MongoTemplate mongoTemplate2 = (MongoTemplate) context.getBean("mongoTemplate");
+        MultiThreadReadFile fileReader = new MultiThreadReadFile("C:\\Users\\LiTao\\Desktop\\view_20180623.log",1024,3,mongoTemplate2);
+        fileReader.startRead();
+    }
+    @org.junit.Test
+    public  void testSocketTimeOut(){
+
+        MultiThreadReadFile fileReader = new MultiThreadReadFile("C:\\Users\\LiTao\\Desktop\\view_20180623.log",1024,3,mongoTemplate);
+        fileReader.startRead();
+    }
 }

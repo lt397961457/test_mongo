@@ -6,19 +6,15 @@ import java.io.IOException;
 import java.io.InputStream;  
 import java.util.Iterator;  
 import java.util.List;  
-import java.util.Properties;  
-  
-import org.bson.Document;  
+import java.util.Properties;
+
+import com.mongodb.*;
+import org.bson.Document;
 import org.bson.conversions.Bson;  
-import org.bson.types.ObjectId;  
-  
-import com.mongodb.BasicDBObject;  
-import com.mongodb.MongoClient;  
-import com.mongodb.MongoClientOptions;  
-import com.mongodb.MongoClientOptions.Builder;  
-import com.mongodb.MongoClientURI;  
-import com.mongodb.WriteConcern;  
-import com.mongodb.client.MongoCollection;  
+import org.bson.types.ObjectId;
+
+import com.mongodb.MongoClientOptions.Builder;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;  
 import com.mongodb.client.model.Filters;  
 import com.mongodb.client.result.DeleteResult;  
@@ -42,6 +38,8 @@ public enum MongoDbDao {
      * 指定默认数据库 
      */  
     private static String DEFAULTDBNAME;
+    private static Integer MAX_WAITTIME;
+    private static Integer SOCKETTIMEOUT;
     static {  
   
         System.out.println("MongoDb初始化＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝Begin");  
@@ -65,10 +63,19 @@ public enum MongoDbDao {
             /* 将配置文件中的配置进行对应设置 */  
   
             DEFAULTDBNAME = properties.getProperty("mongo.dbname");
-  
+            MAX_WAITTIME = Integer.parseInt(properties.getProperty("mongo.maxWaitTime"));
+            SOCKETTIMEOUT = Integer.parseInt(properties.getProperty("mongo.socketTimeout"));
+
+//            MongoCredential credential = MongoCredential.createCredential("root", "test", "root".toCharArray());
+
             Builder builder = new MongoClientOptions.Builder();  
             String perHost = properties.getProperty("mongo.connectionsPerHost");  
-            builder.connectionsPerHost(Integer.parseInt(perHost));  
+            builder.connectionsPerHost(Integer.parseInt(perHost));
+            builder.socketTimeout(30000);
+            builder.connectTimeout(SOCKETTIMEOUT);
+            builder.maxWaitTime(MAX_WAITTIME);
+            builder.socketKeepAlive(true).heartbeatSocketTimeout(30000);
+            builder.retryWrites(true);//网络异常后，是否重试，默认为false
             builder.writeConcern(WriteConcern.SAFE);// WriteConcern.SAFE:抛出网络错误异常、服务器错误异常；并等待服务器完成写操作。  
   
             String clientURI = properties.getProperty("mongo.uri");
@@ -77,7 +84,7 @@ public enum MongoDbDao {
             }  
   
             MongoClientURI mongoClientURI = new MongoClientURI(clientURI,builder);  
-            INSTANCE.mongoClient = new MongoClient(mongoClientURI);  
+            INSTANCE.mongoClient = new MongoClient(mongoClientURI);
         } catch (Exception e) {  
             throw new RuntimeException("load resource fail, uri:" + uri  
                     + " errorMsg:" + e.getMessage(), e);  
@@ -93,7 +100,64 @@ public enum MongoDbDao {
         System.out.println("MongoDb初始化＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝end");  
   
     }  
-  
+
+    public MongoClient getNewClient(){
+        MongoClient client;
+        System.out.println("MongoDb初始化＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝Begin");
+
+        // 获取MongoDb配置路径
+        String uri = "F:\\myTestCode\\test_mongo\\src\\main\\resources\\mongodb.properties";
+        // 加载配置路径
+        Properties properties = new Properties();
+        InputStream inputStream = null;
+
+        try {
+            inputStream = new FileInputStream(uri);
+            System.out.println(inputStream);
+            properties.load(inputStream);
+
+            for(Iterator<Object> itr = properties.keySet().iterator();itr.hasNext();){
+                String key = (String) itr.next();
+                System.out.println(key + "=" + properties.get(key));
+            }
+
+            /* 将配置文件中的配置进行对应设置 */
+
+            DEFAULTDBNAME = properties.getProperty("mongo.dbname");
+            MAX_WAITTIME = Integer.parseInt(properties.getProperty("mongo.maxWaitTime"));
+            SOCKETTIMEOUT = Integer.parseInt(properties.getProperty("mongo.socketTimeout"));
+
+            Builder builder = new MongoClientOptions.Builder();
+            String perHost = properties.getProperty("mongo.connectionsPerHost");
+            builder.connectionsPerHost(Integer.parseInt(perHost));
+            builder.socketTimeout(SOCKETTIMEOUT);
+            builder.connectTimeout(SOCKETTIMEOUT);
+            builder.maxWaitTime(MAX_WAITTIME);
+
+            builder.writeConcern(WriteConcern.SAFE);// WriteConcern.SAFE:抛出网络错误异常、服务器错误异常；并等待服务器完成写操作。
+
+            String clientURI = properties.getProperty("mongo.uri");
+            if (clientURI == null || "".equals(clientURI)) {
+                throw new java.lang.IllegalArgumentException("mongo.uri 不能为空！");
+            }
+
+            MongoClientURI mongoClientURI = new MongoClientURI(clientURI,builder);
+            client = new MongoClient(mongoClientURI);
+            System.out.println("MongoDb初始化＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝end");
+            return client;
+        } catch (Exception e) {
+            throw new RuntimeException("load resource fail, uri:" + uri
+                    + " errorMsg:" + e.getMessage(), e);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
     /** 
      *  
      * @Title getCollection 

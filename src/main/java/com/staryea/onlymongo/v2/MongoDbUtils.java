@@ -1,8 +1,9 @@
 package com.staryea.onlymongo.v2;
 
 import java.util.List;
-  
-import org.bson.Document;  
+
+import com.mongodb.MongoClient;
+import org.bson.Document;
 import org.bson.conversions.Bson;  
   
 import com.mongodb.client.MongoCollection;  
@@ -188,5 +189,8 @@ public class MongoDbUtils {
     public static void insertMany(String collName, List<Document> documents){  
         MongoCollection<Document> coll = getDefaultCollection(collName);  
         MongoDbDao.INSTANCE.insertMany(coll, documents);  
-    }  
+    }
+    public static MongoClient getNewClient(){
+        return MongoDbDao.INSTANCE.getNewClient();
+    }
 }  

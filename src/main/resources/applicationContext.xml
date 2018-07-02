@@ -10,11 +10,11 @@
        http://www.springframework.org/schema/mvc
        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
     <context:component-scan base-package="com.staryea" />
-    <bean id="cmsApplicationListener" class="com.staryea.listenfilealter.ContextFileListener"/>
+   <!-- <bean id="cmsApplicationListener" class="com.staryea.listenfilealter.ContextFileListener"/>
     <bean id="fileListener" class="com.staryea.listenfilealter.FileListener" />
     <bean id="fileMonitor" class="com.staryea.listenfilealter.FileMonitor">
         <property name="alterationListener" ref="fileListener"/>
         <property name="filePath" value="F:/myTestCode/test_mongo/target/classes/aaa.conf"/>
-    </bean>
+    </bean>-->
     <import resource="classpath*:spring-mongo.xml" />
 </beans>

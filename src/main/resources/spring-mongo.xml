@@ -24,12 +24,16 @@
                 threads-allowed-to-block-for-connection-multiplier="${mongo.threadsAllowedToBlockForConnectionMultiplier}"
                 connect-timeout="${mongo.connectTimeout}"
                 max-wait-time="${mongo.maxWaitTime}"
-
                 socket-keep-alive="${mongo.socketKeepAlive}"
-                socket-timeout="${mongo.socketTimeout}"/>
+                socket-timeout="${mongo.socketTimeout}"
+
+        />
+
+
     </mongo:mongo-client>
+
     <!-- 设置使用的数据库 名-->
-    <mongo:db-factory id="mongoDbFactory" dbname="${mongo.dbname}" mongo-ref="mongo"/>
+    <mongo:db-factory id="mongoDbFactory"  dbname="${mongo.dbname}" mongo-ref="mongo"/>
 
 
     <bean id="mappingContext"
